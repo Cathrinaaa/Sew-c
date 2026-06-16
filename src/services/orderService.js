@@ -31,16 +31,39 @@ export async function getNextOrderNumber() {
    CREATE ORDER
 ========================= */
 export async function createOrder(orderData) {
+  // Create order first
   const { data, error } = await supabase
     .from("orders")
     .insert([orderData])
-    .select();
+    .select()
+    .single();
 
   if (error) throw error;
 
+  // Automatically record down payment
+  const downPayment = Number(
+    orderData.down_payment || 0
+  );
+
+  if (downPayment > 0) {
+    const { error: paymentError } =
+      await supabase
+        .from("payments")
+        .insert([
+          {
+            order_id: data.id,
+            amount: downPayment,
+            payment_date:
+              orderData.date_received,
+          },
+        ]);
+
+    if (paymentError)
+      throw paymentError;
+  }
+
   return data;
 }
-
 /* =========================
    GET ORDERS
 ========================= */

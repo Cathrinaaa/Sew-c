@@ -11,6 +11,7 @@ export default function Schedule() {
         try {
             const data = await getOrders();
 
+
             const priorityOrder = {
                 Rush: 1,
                 Urgent: 2,
@@ -24,6 +25,13 @@ export default function Schedule() {
                         order.status === "In Progress"
                 )
                 .sort((a, b) => {
+                    const dueDateDiff =
+                        new Date(a.due_date) -
+                        new Date(b.due_date);
+
+                    if (dueDateDiff !== 0)
+                        return dueDateDiff;
+
                     const priorityDiff =
                         (priorityOrder[a.priority] || 99) -
                         (priorityOrder[b.priority] || 99);
@@ -32,8 +40,8 @@ export default function Schedule() {
                         return priorityDiff;
 
                     return (
-                        new Date(a.due_date) -
-                        new Date(b.due_date)
+                        new Date(a.date_received) -
+                        new Date(b.date_received)
                     );
                 });
 
@@ -66,6 +74,30 @@ export default function Schedule() {
             );
         }
     };
+    const getDaysLeft = (dueDate) => {
+        if (!dueDate) return "-";
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const due = new Date(dueDate);
+        due.setHours(0, 0, 0, 0);
+
+        const diff = Math.ceil(
+            (due - today) / (1000 * 60 * 60 * 24)
+        );
+
+        if (diff < 0)
+            return `🔴 Overdue (${Math.abs(diff)}d)`;
+
+        if (diff === 0)
+            return "🟠 Due Today";
+
+        if (diff === 1)
+            return "🟡 Tomorrow";
+
+        return `🟢 ${diff} days`;
+    };
 
     return (
         <div className="max-w-7xl mx-auto">
@@ -75,14 +107,16 @@ export default function Schedule() {
                 </h1>
 
                 <p className="text-gray-500 mb-6">
-                    Orders sorted by priority and
-                    due date.
+                    Orders sorted by due date, priority, and date received.
                 </p>
-
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="bg-gray-100">
+                                <th className="border p-2 text-left">
+                                    Queue
+                                </th>
+
                                 <th className="border p-2 text-left">
                                     Customer
                                 </th>
@@ -93,6 +127,10 @@ export default function Schedule() {
 
                                 <th className="border p-2 text-left">
                                     Due Date
+                                </th>
+
+                                <th className="border p-2 text-left">
+                                    Days Left
                                 </th>
 
                                 <th className="border p-2 text-left">
@@ -115,21 +153,26 @@ export default function Schedule() {
                                     Balance
                                 </th>
                             </tr>
+
                         </thead>
 
                         <tbody>
                             {orders.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan="8"
+                                        colSpan="10"
                                         className="border p-4 text-center"
                                     >
                                         No scheduled orders
                                     </td>
                                 </tr>
                             ) : (
-                                orders.map((order) => (
+                                orders.map((order, index) => (
                                     <tr key={order.id}>
+                                        <td className="border p-2 font-bold">
+                                            #{index + 1}
+                                        </td>
+
                                         <td className="border p-2">
                                             {order.customer_name}
                                         </td>
@@ -140,6 +183,10 @@ export default function Schedule() {
 
                                         <td className="border p-2">
                                             {order.due_date || "-"}
+                                        </td>
+
+                                        <td className="border p-2">
+                                            {getDaysLeft(order.due_date)}
                                         </td>
 
                                         <td className="border p-2">
@@ -175,16 +222,8 @@ export default function Schedule() {
                                             </select>
                                         </td>
 
-                                        <td className="border p-2 max-w-xs">
-                                            {order.notes
-                                                ? order.notes.length >
-                                                    40
-                                                    ? order.notes.substring(
-                                                        0,
-                                                        40
-                                                    ) + "..."
-                                                    : order.notes
-                                                : "-"}
+                                        <td className="border p-2 min-w-[300px] whitespace-pre-wrap break-words">
+                                            {order.notes || "-"}
                                         </td>
 
                                         <td className="border p-2">
