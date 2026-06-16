@@ -110,7 +110,7 @@ export default function Orders() {
     </h2>
 
     {/* MOBILE VIEW */}
-    <div className="md:hidden space-y-4">
+    <div className="hidden md:block overflow-x-auto">
       {orders
         .filter(
           (o) =>
