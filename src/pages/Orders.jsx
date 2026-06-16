@@ -110,7 +110,7 @@ export default function Orders() {
     </h2>
 
     {/* MOBILE VIEW */}
-    <div className="hidden md:block overflow-x-auto">
+    <div className="space-y-4">
       {orders
         .filter(
           (o) =>
@@ -228,7 +228,7 @@ export default function Orders() {
     </div>
 
     {/* DESKTOP VIEW */}
-    <div className="hidden md:block overflow-x-auto">
+    <div className="space-y-4">
       <table className="w-full border-collapse">
         {/* KEEP YOUR CURRENT TABLE HERE */}
       </table>
