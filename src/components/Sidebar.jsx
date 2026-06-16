@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
@@ -14,6 +15,10 @@ export default function Sidebar() {
     { name: "History", path: "/history" },
   ];
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
   return (
     <>
       {/* MOBILE TOP BAR */}
@@ -27,10 +32,9 @@ export default function Sidebar() {
           </button>
 
           <h1 className="text-xl font-bold text-blue-900">
-             Sew-C
+            Sew-C
           </h1>
 
-          {/* spacer */}
           <div className="w-6" />
         </div>
       </header>
@@ -50,16 +54,17 @@ export default function Sidebar() {
           h-screen w-64
           bg-blue-900 text-white
           transform transition-transform duration-300
-          ${open
-            ? "translate-x-0"
-            : "-translate-x-full"
+          ${
+            open
+              ? "translate-x-0"
+              : "-translate-x-full"
           }
           md:hidden
         `}
       >
         <div className="flex justify-between items-center p-5 border-b border-blue-800">
           <h1 className="text-2xl font-bold">
-            🧵 Sew-C
+            Sew-C
           </h1>
 
           <button
@@ -88,6 +93,23 @@ export default function Sidebar() {
               {item.name}
             </Link>
           ))}
+
+          <button
+            onClick={handleLogout}
+            className="
+              w-full
+              text-left
+              px-4
+              py-3
+              rounded-lg
+              bg-red-600
+              hover:bg-red-700
+              transition
+              mt-6
+            "
+          >
+            Logout
+          </button>
         </nav>
       </aside>
 
@@ -117,6 +139,23 @@ export default function Sidebar() {
             </Link>
           ))}
         </nav>
+
+        <div className="p-4 border-t border-blue-800">
+          <button
+            onClick={handleLogout}
+            className="
+              w-full
+              px-4
+              py-3
+              rounded-lg
+              bg-red-600
+              hover:bg-red-700
+              transition
+            "
+          >
+            Logout
+          </button>
+        </div>
       </aside>
     </>
   );
