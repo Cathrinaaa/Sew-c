@@ -5,6 +5,7 @@ import {
 } from "../services/orderService";
 
 export default function Schedule() {
+    const [allOrders, setAllOrders] = useState([]);
     const [orders, setOrders] = useState([]);
 
     const [serviceFilter, setServiceFilter] =
@@ -16,11 +17,15 @@ export default function Schedule() {
                 .toISOString()
                 .split("T")[0]
         );
+    const [viewMode, setViewMode] =
+        useState("all");
 
     const loadOrders = async () => {
         try {
             const data = await getOrders();
-
+            
+            setAllOrders(data);
+           
 
             const priorityOrder = {
                 Rush: 1,
@@ -40,9 +45,22 @@ export default function Schedule() {
                             : order.service_type ===
                             serviceFilter;
 
+                    const dueTodayMatch =
+                        viewMode === "dueToday"
+                            ? order.due_date === scheduleDate
+                            : true;
+
+                    const overdueMatch =
+                        viewMode === "overdue"
+                            ? order.due_date &&
+                            order.due_date < scheduleDate
+                            : true;
+
                     return (
                         activeOrder &&
-                        serviceMatch
+                        serviceMatch &&
+                        dueTodayMatch &&
+                        overdueMatch
                     );
                 }
             );
@@ -85,8 +103,7 @@ export default function Schedule() {
 
     useEffect(() => {
         loadOrders();
-    }, [serviceFilter]);
-
+    }, [serviceFilter, viewMode, scheduleDate]);
     const handleStatusChange = async (
         orderId,
         newStatus
@@ -203,24 +220,46 @@ export default function Schedule() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
 
-                    <div className="bg-blue-50 p-3 rounded-lg">
+                    <div
+                        onClick={() =>
+                            setViewMode("all")
+                        }
+                        className={`p-3 rounded-lg cursor-pointer ${viewMode === "all"
+                            ? "bg-blue-200 border-2 border-blue-500"
+                            : "bg-blue-50"
+                            }`}
+                    >
                         <p className="text-sm text-gray-500">
                             Total Orders
                         </p>
 
                         <p className="font-bold text-xl">
-                            {orders.length}
+                            {
+                                allOrders.filter(
+                                    (o) =>
+                                        o.status === "Pending" ||
+                                        o.status === "In Progress"
+                                ).length
+                            }
                         </p>
                     </div>
 
-                    <div className="bg-yellow-50 p-3 rounded-lg">
+                    <div
+                        onClick={() =>
+                            setViewMode("dueToday")
+                        }
+                        className={`p-3 rounded-lg cursor-pointer ${viewMode === "dueToday"
+                            ? "bg-yellow-200 border-2 border-yellow-500"
+                            : "bg-yellow-50"
+                            }`}
+                    >
                         <p className="text-sm text-gray-500">
                             Due Today
                         </p>
 
                         <p className="font-bold text-xl">
                             {
-                                orders.filter(
+                                allOrders.filter(
                                     (o) =>
                                         o.due_date ===
                                         scheduleDate
@@ -229,14 +268,22 @@ export default function Schedule() {
                         </p>
                     </div>
 
-                    <div className="bg-red-50 p-3 rounded-lg">
+                    <div
+                        onClick={() =>
+                            setViewMode("overdue")
+                        }
+                        className={`p-3 rounded-lg cursor-pointer ${viewMode === "overdue"
+                            ? "bg-red-200 border-2 border-red-500"
+                            : "bg-red-50"
+                            }`}
+                    >
                         <p className="text-sm text-gray-500">
                             Overdue
                         </p>
 
                         <p className="font-bold text-xl">
                             {
-                                orders.filter(
+                                allOrders.filter(
                                     (o) =>
                                         o.due_date <
                                         scheduleDate
