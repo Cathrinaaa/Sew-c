@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { exportToExcel } from "../utils/exportExcel";
+import { getUkaySales } from "../services/ukayService";
 import {
   getDashboardStats,
   getPayments,
 } from "../services/orderService";
-import { getUkaySales } from "../services/ukayService";
+
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -201,6 +203,30 @@ export default function Dashboard() {
       console.error(error);
     }
   };
+  const handleExportBackup = async () => {
+    try {
+      const orders =
+        await getDashboardStats();
+
+      const payments =
+        await getPayments();
+
+      const ukaySales =
+        await getUkaySales();
+
+      exportToExcel(
+        orders,
+        payments,
+        ukaySales
+      );
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Failed to export backup."
+      );
+    }
+  };
 
   const totalDaily =
     stats.tailoringDaily +
@@ -314,14 +340,31 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold">
-          Dashboard
-        </h1>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">
+            Dashboard
+          </h1>
 
-        <p className="text-gray-500 mt-1 text-sm md:text-base">
-          Business Overview
-        </p>
+          <p className="text-gray-500 mt-1 text-sm md:text-base">
+            Business Overview
+          </p>
+        </div>
+
+        <button
+          onClick={handleExportBackup}
+          className="
+      bg-green-600
+      hover:bg-green-700
+      text-white
+      px-4
+      py-2
+      rounded-lg
+      font-medium
+    "
+        >
+          📥 Export Backup
+        </button>
       </div>
 
       {/* ORDER STATUS */}
