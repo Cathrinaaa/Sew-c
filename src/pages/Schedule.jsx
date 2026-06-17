@@ -7,6 +7,16 @@ import {
 export default function Schedule() {
     const [orders, setOrders] = useState([]);
 
+    const [serviceFilter, setServiceFilter] =
+        useState("All");
+
+    const [scheduleDate, setScheduleDate] =
+        useState(
+            new Date()
+                .toISOString()
+                .split("T")[0]
+        );
+
     const loadOrders = async () => {
         try {
             const data = await getOrders();
@@ -18,30 +28,52 @@ export default function Schedule() {
                 Normal: 3,
             };
 
-            const scheduleOrders = data
-                .filter(
-                    (order) =>
+            const filteredOrders = data.filter(
+                (order) => {
+                    const activeOrder =
                         order.status === "Pending" ||
-                        order.status === "In Progress"
-                )
-                .sort((a, b) => {
-                    const dueDateDiff =
+                        order.status === "In Progress";
+
+                    const serviceMatch =
+                        serviceFilter === "All"
+                            ? true
+                            : order.service_type ===
+                            serviceFilter;
+
+                    return (
+                        activeOrder &&
+                        serviceMatch
+                    );
+                }
+            );
+
+            const scheduleOrders =
+                filteredOrders.sort((a, b) => {
+                    const receivedDiff =
+                        new Date(
+                            a.date_received
+                        ) -
+                        new Date(
+                            b.date_received
+                        );
+
+                    if (receivedDiff !== 0)
+                        return receivedDiff;
+
+                    const dueDiff =
                         new Date(a.due_date) -
                         new Date(b.due_date);
 
-                    if (dueDateDiff !== 0)
-                        return dueDateDiff;
-
-                    const priorityDiff =
-                        (priorityOrder[a.priority] || 99) -
-                        (priorityOrder[b.priority] || 99);
-
-                    if (priorityDiff !== 0)
-                        return priorityDiff;
+                    if (dueDiff !== 0)
+                        return dueDiff;
 
                     return (
-                        new Date(a.date_received) -
-                        new Date(b.date_received)
+                        (priorityOrder[
+                            a.priority
+                        ] || 99) -
+                        (priorityOrder[
+                            b.priority
+                        ] || 99)
                     );
                 });
 
@@ -53,7 +85,7 @@ export default function Schedule() {
 
     useEffect(() => {
         loadOrders();
-    }, []);
+    }, [serviceFilter]);
 
     const handleStatusChange = async (
         orderId,
@@ -107,60 +139,157 @@ export default function Schedule() {
                 </h1>
 
                 <p className="text-gray-500 mb-6">
-                    Orders sorted by due date, priority, and date received.
+                    Orders sorted by date received, due date, and priority.
                 </p>
+                <div className="flex flex-col md:flex-row gap-3 mb-4">
+
+                    <select
+                        value={serviceFilter}
+                        onChange={(e) =>
+                            setServiceFilter(
+                                e.target.value
+                            )
+                        }
+                        className="border rounded-lg p-2"
+                    >
+                        <option value="All">
+                            All Services
+                        </option>
+
+                        <option value="Uniform Sewing">
+                            Uniform Sewing
+                        </option>
+
+                        <option value="Pants Alteration">
+                            Pants Alteration
+                        </option>
+
+                        <option value="Dress Alteration">
+                            Dress Alteration
+                        </option>
+
+                        <option value="Repair">
+                            Repair
+                        </option>
+
+                        <option value="Curtain Sewing">
+                            Curtain Sewing
+                        </option>
+
+                        <option value="Project">
+                            Project
+                        </option>
+
+                        <option value="Patches Sewing">
+                            Patches Sewing
+                        </option>
+
+                        <option value="Others">
+                            Others
+                        </option>
+                    </select>
+
+                    <input
+                        type="date"
+                        value={scheduleDate}
+                        onChange={(e) =>
+                            setScheduleDate(
+                                e.target.value
+                            )
+                        }
+                        className="border rounded-lg p-2"
+                    />
+
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                        <p className="text-sm text-gray-500">
+                            Total Orders
+                        </p>
+
+                        <p className="font-bold text-xl">
+                            {orders.length}
+                        </p>
+                    </div>
+
+                    <div className="bg-yellow-50 p-3 rounded-lg">
+                        <p className="text-sm text-gray-500">
+                            Due Today
+                        </p>
+
+                        <p className="font-bold text-xl">
+                            {
+                                orders.filter(
+                                    (o) =>
+                                        o.due_date ===
+                                        scheduleDate
+                                ).length
+                            }
+                        </p>
+                    </div>
+
+                    <div className="bg-red-50 p-3 rounded-lg">
+                        <p className="text-sm text-gray-500">
+                            Overdue
+                        </p>
+
+                        <p className="font-bold text-xl">
+                            {
+                                orders.filter(
+                                    (o) =>
+                                        o.due_date <
+                                        scheduleDate
+                                ).length
+                            }
+                        </p>
+                    </div>
+
+                </div>
+
                 <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
+                    <table className="min-w-[1000px] border-collapse">
                         <thead>
                             <tr className="bg-gray-100">
-                                <th className="border p-2 text-left">
+                                <th className="border p-2">
                                     Queue
                                 </th>
 
-                                <th className="border p-2 text-left">
+                                <th className="border p-2">
                                     Customer
                                 </th>
 
-                                <th className="border p-2 text-left">
-                                    Service
+                                <th className="border p-2">
+                                    Contact No.
                                 </th>
 
-                                <th className="border p-2 text-left">
+                                <th className="border p-2">
+                                    Date Received
+                                </th>
+
+                                <th className="border p-2">
                                     Due Date
                                 </th>
 
-                                <th className="border p-2 text-left">
-                                    Days Left
-                                </th>
-
-                                <th className="border p-2 text-left">
-                                    Priority
-                                </th>
-
-                                <th className="border p-2 text-left">
+                                <th className="border p-2">
                                     Status
                                 </th>
 
-                                <th className="border p-2 text-left">
+                                <th className="border p-2">
                                     Notes
                                 </th>
 
-                                <th className="border p-2 text-left">
-                                    Image
-                                </th>
-
-                                <th className="border p-2 text-left">
+                                <th className="border p-2">
                                     Balance
                                 </th>
                             </tr>
-
                         </thead>
 
                         <tbody>
                             {orders.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan="10"
+                                        colSpan="8"
                                         className="border p-4 text-center"
                                     >
                                         No scheduled orders
@@ -178,19 +307,15 @@ export default function Schedule() {
                                         </td>
 
                                         <td className="border p-2">
-                                            {order.service_type}
+                                            {order.contact_number || "-"}
+                                        </td>
+
+                                        <td className="border p-2">
+                                            {order.date_received}
                                         </td>
 
                                         <td className="border p-2">
                                             {order.due_date || "-"}
-                                        </td>
-
-                                        <td className="border p-2">
-                                            {getDaysLeft(order.due_date)}
-                                        </td>
-
-                                        <td className="border p-2">
-                                            {order.priority}
                                         </td>
 
                                         <td className="border p-2">
@@ -224,18 +349,6 @@ export default function Schedule() {
 
                                         <td className="border p-2 min-w-[300px] whitespace-pre-wrap break-words">
                                             {order.notes || "-"}
-                                        </td>
-
-                                        <td className="border p-2">
-                                            {order.image_url ? (
-                                                <img
-                                                    src={order.image_url}
-                                                    alt="Order"
-                                                    className="w-16 h-16 object-cover rounded"
-                                                />
-                                            ) : (
-                                                "-"
-                                            )}
                                         </td>
 
                                         <td className="border p-2 font-semibold text-red-600">

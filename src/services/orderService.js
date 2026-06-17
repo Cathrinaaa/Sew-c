@@ -71,8 +71,8 @@ export async function getOrders() {
   const { data, error } = await supabase
     .from("orders")
     .select("*")
-    .order("created_at", {
-      ascending: false,
+    .order("date_received", {
+      ascending: true,
     });
 
   if (error) throw error;
@@ -234,4 +234,16 @@ export async function getDashboardStats() {
   if (error) throw error;
 
   return data;
+}
+
+export async function updateOrderNotes(
+  orderId,
+  notes
+) {
+  const { error } = await supabase
+    .from("orders")
+    .update({ notes })
+    .eq("id", orderId);
+
+  if (error) throw error;
 }
