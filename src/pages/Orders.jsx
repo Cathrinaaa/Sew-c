@@ -17,6 +17,9 @@ export default function Orders() {
   const [noteValue, setNoteValue] =
     useState("");
 
+  const [selectedCustomer, setSelectedCustomer] =
+    useState(null);
+
   const location = useLocation();
 
   const showSuccess =
@@ -176,7 +179,12 @@ export default function Orders() {
                 className="bg-white border rounded-xl p-4 shadow"
               >
                 <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-bold text-lg">
+                  <h3
+                    onClick={() =>
+                      setSelectedCustomer(order)
+                    }
+                    className="font-bold text-lg cursor-pointer text-blue-900 hover:text-blue-700 hover:underline"
+                  >
                     {order.customer_name}
                   </h3>
 
@@ -346,6 +354,147 @@ export default function Orders() {
           </table>
         </div>
       </div>
+
+      {/* CUSTOMER DETAILS MODAL */}
+      {selectedCustomer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">
+                Customer Details
+              </h2>
+              <button
+                onClick={() =>
+                  setSelectedCustomer(null)
+                }
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Name:
+                </label>
+                <p className="text-gray-600">
+                  {selectedCustomer.customer_name}
+                </p>
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Contact Number:
+                </label>
+                <p className="text-gray-600">
+                  {selectedCustomer.contact_number ||
+                    "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Email:
+                </label>
+                <p className="text-gray-600">
+                  {selectedCustomer.email || "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Date Received:
+                </label>
+                <p className="text-gray-600">
+                  {selectedCustomer.date_received ||
+                    "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Service Type:
+                </label>
+                <p className="text-gray-600">
+                  {selectedCustomer.service_type ||
+                    "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Due Date:
+                </label>
+                <p className="text-gray-600">
+                  {selectedCustomer.due_date ||
+                    "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Priority:
+                </label>
+                <p className="text-gray-600">
+                  {selectedCustomer.priority ||
+                    "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Status:
+                </label>
+                <p className="text-gray-600">
+                  {selectedCustomer.status || "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Payment Status:
+                </label>
+                <p className="text-gray-600">
+                  {selectedCustomer.payment_status ||
+                    "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Balance:
+                </label>
+                <p className="text-red-600 font-bold">
+                  ₱
+                  {Number(
+                    selectedCustomer.balance || 0
+                  ).toLocaleString()}
+                </p>
+              </div>
+
+              <div>
+                <label className="font-semibold text-gray-700">
+                  Notes:
+                </label>
+                <p className="text-gray-600">
+                  {selectedCustomer.notes ||
+                    "No notes"}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() =>
+                setSelectedCustomer(null)
+              }
+              className="w-full mt-6 bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-medium"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div >
   );
 }

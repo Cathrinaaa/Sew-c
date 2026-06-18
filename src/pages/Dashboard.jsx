@@ -25,6 +25,17 @@ export default function Dashboard() {
     ukayYearly: 0,
   });
 
+  const [showExportModal, setShowExportModal] =
+    useState(false);
+
+  const [exportOption, setExportOption] =
+    useState("all");
+
+  const [startDate, setStartDate] =
+    useState("");
+
+  const [endDate, setEndDate] = useState("");
+
   useEffect(() => {
     loadDashboard();
   }, []);
@@ -203,22 +214,78 @@ export default function Dashboard() {
       console.error(error);
     }
   };
+  const filterDataByDateRange = (
+    data,
+    dateField
+  ) => {
+    if (!startDate || !endDate) return data;
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
+    return data.filter((item) => {
+      const itemDate = new Date(
+        item[dateField]
+      );
+      return (
+        itemDate >= start && itemDate <= end
+      );
+    });
+  };
+
   const handleExportBackup = async () => {
     try {
-      const orders =
+      if (
+        exportOption === "period" &&
+        (!startDate || !endDate)
+      ) {
+        alert(
+          "Please select a date range."
+        );
+        return;
+      }
+
+      let orders =
         await getDashboardStats();
 
-      const payments =
+      let payments =
         await getPayments();
 
-      const ukaySales =
+      let ukaySales =
         await getUkaySales();
+
+      if (exportOption === "period") {
+        orders = filterDataByDateRange(
+          orders,
+          "date_received"
+        );
+
+        payments =
+          filterDataByDateRange(
+            payments,
+            "payment_date"
+          );
+
+        ukaySales = filterDataByDateRange(
+          ukaySales,
+          "sale_date"
+        );
+      }
 
       exportToExcel(
         orders,
         payments,
         ukaySales
       );
+
+      setShowExportModal(false);
+
+      setExportOption("all");
+
+      setStartDate("");
+
+      setEndDate("");
     } catch (error) {
       console.error(error);
 
@@ -352,7 +419,9 @@ export default function Dashboard() {
         </div>
 
         <button
-          onClick={handleExportBackup}
+          onClick={() =>
+            setShowExportModal(true)
+          }
           className="
       bg-green-600
       hover:bg-green-700
@@ -366,6 +435,129 @@ export default function Dashboard() {
           📥 Export Backup
         </button>
       </div>
+
+      {/* EXPORT MODAL */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">
+                Export Backup
+              </h2>
+              <button
+                onClick={() => {
+                  setShowExportModal(false);
+                  setExportOption("all");
+                  setStartDate("");
+                  setEndDate("");
+                }}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block font-semibold text-gray-700 mb-2">
+                  Export Type:
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="exportType"
+                      value="all"
+                      checked={exportOption === "all"}
+                      onChange={(e) => {
+                        setExportOption(
+                          e.target.value
+                        );
+                      }}
+                      className="mr-2"
+                    />
+                    <span>Download All Data</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="exportType"
+                      value="period"
+                      checked={
+                        exportOption ===
+                        "period"
+                      }
+                      onChange={(e) => {
+                        setExportOption(
+                          e.target.value
+                        );
+                      }}
+                      className="mr-2"
+                    />
+                    <span>Specific Period</span>
+                  </label>
+                </div>
+              </div>
+
+              {exportOption === "period" && (
+                <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Start Date:
+                    </label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) =>
+                        setStartDate(
+                          e.target.value
+                        )
+                      }
+                      className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-600"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      End Date:
+                    </label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) =>
+                        setEndDate(
+                          e.target.value
+                        )
+                      }
+                      className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-600"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2 mt-6">
+              <button
+                onClick={handleExportBackup}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium"
+              >
+                Export
+              </button>
+              <button
+                onClick={() => {
+                  setShowExportModal(false);
+                  setExportOption("all");
+                  setStartDate("");
+                  setEndDate("");
+                }}
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ORDER STATUS */}
       <div className="mb-8">
