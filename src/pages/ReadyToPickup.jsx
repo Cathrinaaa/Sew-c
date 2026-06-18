@@ -83,7 +83,15 @@ export default function ReadyToPickup() {
                 </th>
 
                 <th className="border p-2 text-left">
+                  Contact
+                </th>
+
+                <th className="border p-2 text-left">
                   Service
+                </th>
+
+                <th className="border p-2 text-left">
+                  Quantity
                 </th>
 
                 <th className="border p-2 text-left">
@@ -116,7 +124,7 @@ export default function ReadyToPickup() {
               {orders.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="8"
+                    colSpan="10"
                     className="border p-4 text-center"
                   >
                     No ready orders
@@ -130,7 +138,16 @@ export default function ReadyToPickup() {
                     </td>
 
                     <td className="border p-2">
+                      {order.contact_number ||
+                        "-"}
+                    </td>
+
+                    <td className="border p-2">
                       {order.service_type}
+                    </td>
+
+                    <td className="border p-2">
+                      {order.quantity || 1}
                     </td>
 
                     <td className="border p-2">

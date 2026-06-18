@@ -22,7 +22,7 @@ export default function Sidebar() {
   return (
     <>
       {/* MOBILE TOP BAR */}
-      <header className="md:hidden sticky top-0 z-50 bg-white border-b shadow-sm">
+      <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b shadow-md">
         <div className="flex items-center justify-between px-4 py-3">
           <button
             onClick={() => setOpen(true)}
@@ -31,9 +31,16 @@ export default function Sidebar() {
             ☰
           </button>
 
-          <h1 className="text-xl font-bold text-blue-900">
-            Sew-C
-          </h1>
+          <div className="flex items-center gap-2">
+            <img
+              src="/sew-c-logo.png"
+              alt="Sew-C Logo"
+              className="h-8 w-8"
+            />
+            <h1 className="text-lg font-bold text-blue-900">
+              Sew-C
+            </h1>
+          </div>
 
           <div className="w-6" />
         </div>
@@ -114,8 +121,13 @@ export default function Sidebar() {
       </aside>
 
       {/* DESKTOP SIDEBAR */}
-      <aside className="hidden md:flex md:flex-col w-60 bg-blue-900 text-white min-h-screen">
-        <div className="p-6 border-b border-blue-800">
+      <aside className="hidden md:flex md:flex-col fixed left-0 top-0 w-64 h-screen bg-blue-900 text-white shadow-lg z-40">
+        <div className="p-6 border-b border-blue-800 flex items-center gap-3">
+          <img
+            src="/sew-c-logo.png"
+            alt="Sew-C Logo"
+            className="h-10 w-10 rounded"
+          />
           <h1 className="text-2xl font-bold">
             Sew-C
           </h1>

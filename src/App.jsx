@@ -67,10 +67,10 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-100 md:flex">
+      <div className="min-h-screen bg-gray-50">
         <Sidebar />
 
-        <main className="w-full flex-1 p-4 md:p-6">
+        <main className="w-full md:ml-64 pt-16 md:pt-0 p-4 md:p-6 min-h-screen">
           <Routes>
             <Route
               path="/"
