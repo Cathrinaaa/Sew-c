@@ -454,43 +454,47 @@ export default function Orders() {
       {/* COMPLETION TRACKING MODAL */}
       {showCompletionModal &&
         selectedOrderForCompletion && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold">
-                  Update Completion
-                </h2>
+          <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm border border-gray-200 animate-in fade-in zoom-in duration-300">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-1">
+                    Update Progress
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    Track completion status
+                  </p>
+                </div>
                 <button
                   onClick={() => {
                     setShowCompletionModal(
                       false
                     );
                   }}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                  className="text-gray-400 hover:text-gray-600 text-3xl leading-none transition-colors"
                 >
                   ×
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-2">
-                    Order: {
+              <div className="space-y-6">
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                  <p className="text-sm text-blue-600 font-semibold mb-1">
+                    Order for
+                  </p>
+                  <p className="text-lg font-bold text-blue-900">
+                    {
                       selectedOrderForCompletion.customer_name
                     }
-                  </label>
-                  <p className="text-gray-600 text-sm">
-                    Total Items:{" "}
-                    {
-                      selectedOrderForCompletion.quantity ||
-                      1
-                    }
+                  </p>
+                  <p className="text-sm text-blue-700 mt-2">
+                    Total Items: <span className="font-bold">{selectedOrderForCompletion.quantity || 1}</span>
                   </p>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-2">
-                    Items Completed:
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Items Completed
                   </label>
                   <div className="flex items-center gap-3">
                     <input
@@ -512,9 +516,9 @@ export default function Orders() {
                           )
                         )
                       }
-                      className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      className="flex-1 border-2 border-gray-300 rounded-lg px-4 py-3 text-lg font-semibold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
                     />
-                    <span className="text-sm font-semibold text-gray-600">
+                    <span className="text-lg font-bold text-gray-500">
                       /{
                         selectedOrderForCompletion.quantity ||
                         1
@@ -523,52 +527,55 @@ export default function Orders() {
                   </div>
                 </div>
 
-                <div className="bg-purple-50 rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex-1 bg-gray-300 rounded-full h-2">
-                      <div
-                        className="bg-purple-600 h-2 rounded-full transition-all"
-                        style={{
-                          width: `${
-                            selectedOrderForCompletion.quantity
-                              ? (
-                                  completedQuantity /
-                                  (
-                                    selectedOrderForCompletion.quantity ||
-                                    1
-                                  )
-                                ) * 100
-                              : 0
-                          }%`,
-                        }}
-                      />
-                    </div>
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-semibold text-gray-700">
+                      Completion Status
+                    </p>
+                    <span className="text-2xl font-bold text-blue-600">
+                      {Math.round(
+                        selectedOrderForCompletion.quantity
+                          ? (
+                              completedQuantity /
+                              (
+                                selectedOrderForCompletion.quantity ||
+                                1
+                              )
+                            ) * 100
+                          : 0
+                      )}
+                      %
+                    </span>
                   </div>
-                  <p className="text-sm text-purple-700 font-semibold">
-                    {Math.round(
-                      selectedOrderForCompletion.quantity
-                        ? (
-                            completedQuantity /
-                            (
-                              selectedOrderForCompletion.quantity ||
-                              1
-                            )
-                          ) * 100
-                        : 0
-                    )}
-                    % Completed
-                  </p>
+                  <div className="w-full bg-gray-300 rounded-full h-3 overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${
+                          selectedOrderForCompletion.quantity
+                            ? (
+                                completedQuantity /
+                                (
+                                  selectedOrderForCompletion.quantity ||
+                                  1
+                                )
+                              ) * 100
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-2 mt-6">
+              <div className="flex gap-3 mt-8">
                 <button
                   onClick={
                     handleUpdateCompletion
                   }
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium"
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
                 >
-                  Update
+                  Update Progress
                 </button>
                 <button
                   onClick={() => {
@@ -576,7 +583,7 @@ export default function Orders() {
                       false
                     );
                   }}
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium"
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg font-semibold transition-colors"
                 >
                   Cancel
                 </button>
@@ -587,129 +594,153 @@ export default function Orders() {
 
       {/* CUSTOMER DETAILS MODAL */}
       {selectedCustomer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">
-                Customer Details
-              </h2>
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg border border-gray-200 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-300">
+            <div className="flex justify-between items-start mb-6 sticky top-0 bg-white -mx-8 px-8 pb-4 border-b">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-1">
+                  Customer Details
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Complete order information
+                </p>
+              </div>
               <button
                 onClick={() =>
                   setSelectedCustomer(null)
                 }
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-gray-400 hover:text-gray-600 text-3xl leading-none transition-colors flex-shrink-0"
               >
                 ×
               </button>
             </div>
 
-            <div className="space-y-3">
-              <div>
-                <label className="font-semibold text-gray-700">
-                  Name:
-                </label>
-                <p className="text-gray-600">
+            <div className="space-y-4">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">
+                  Customer Name
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
                   {selectedCustomer.customer_name}
                 </p>
               </div>
 
-              <div>
-                <label className="font-semibold text-gray-700">
-                  Contact Number:
-                </label>
-                <p className="text-gray-600">
-                  {selectedCustomer.contact_number ||
-                    "N/A"}
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                    Contact Number
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {selectedCustomer.contact_number ||
+                      "—"}
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                    Email
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900 break-all">
+                    {selectedCustomer.email ||
+                      "—"}
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <label className="font-semibold text-gray-700">
-                  Email:
-                </label>
-                <p className="text-gray-600">
-                  {selectedCustomer.email || "N/A"}
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                    Date Received
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {selectedCustomer.date_received ||
+                      "—"}
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                    Due Date
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {selectedCustomer.due_date ||
+                      "—"}
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <label className="font-semibold text-gray-700">
-                  Date Received:
-                </label>
-                <p className="text-gray-600">
-                  {selectedCustomer.date_received ||
-                    "N/A"}
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                    Service Type
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {selectedCustomer.service_type ||
+                      "—"}
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                    Priority
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-3 h-3 rounded-full ${
+                      selectedCustomer.priority === 'High' ? 'bg-red-500' :
+                      selectedCustomer.priority === 'Medium' ? 'bg-yellow-500' :
+                      'bg-green-500'
+                    }`} />
+                    <p className="text-sm font-semibold text-gray-900">
+                      {selectedCustomer.priority ||
+                        "—"}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="font-semibold text-gray-700">
-                  Service Type:
-                </label>
-                <p className="text-gray-600">
-                  {selectedCustomer.service_type ||
-                    "N/A"}
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                    Status
+                  </p>
+                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">
+                    {selectedCustomer.status || "—"}
+                  </span>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                    Payment Status
+                  </p>
+                  <span className={`inline-block px-3 py-1 text-xs font-bold rounded-full ${
+                    selectedCustomer.payment_status === 'Paid' 
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {selectedCustomer.payment_status ||
+                      "—"}
+                  </span>
+                </div>
               </div>
 
-              <div>
-                <label className="font-semibold text-gray-700">
-                  Due Date:
-                </label>
-                <p className="text-gray-600">
-                  {selectedCustomer.due_date ||
-                    "N/A"}
+              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                <p className="text-xs font-semibold text-red-600 uppercase tracking-wide mb-2">
+                  Balance
                 </p>
-              </div>
-
-              <div>
-                <label className="font-semibold text-gray-700">
-                  Priority:
-                </label>
-                <p className="text-gray-600">
-                  {selectedCustomer.priority ||
-                    "N/A"}
-                </p>
-              </div>
-
-              <div>
-                <label className="font-semibold text-gray-700">
-                  Status:
-                </label>
-                <p className="text-gray-600">
-                  {selectedCustomer.status || "N/A"}
-                </p>
-              </div>
-
-              <div>
-                <label className="font-semibold text-gray-700">
-                  Payment Status:
-                </label>
-                <p className="text-gray-600">
-                  {selectedCustomer.payment_status ||
-                    "N/A"}
-                </p>
-              </div>
-
-              <div>
-                <label className="font-semibold text-gray-700">
-                  Balance:
-                </label>
-                <p className="text-red-600 font-bold">
-                  ₱
-                  {Number(
+                <p className="text-2xl font-bold text-red-600">
+                  ₱{Number(
                     selectedCustomer.balance || 0
                   ).toLocaleString()}
                 </p>
               </div>
 
-              <div>
-                <label className="font-semibold text-gray-700">
-                  Notes:
-                </label>
-                <p className="text-gray-600">
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                  Notes
+                </p>
+                <p className="text-sm text-gray-700 leading-relaxed">
                   {selectedCustomer.notes ||
-                    "No notes"}
+                    "No notes added"}
                 </p>
               </div>
             </div>
@@ -718,7 +749,7 @@ export default function Orders() {
               onClick={() =>
                 setSelectedCustomer(null)
               }
-              className="w-full mt-6 bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-medium"
+              className="w-full mt-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
             >
               Close
             </button>

@@ -567,12 +567,17 @@ export default function Dashboard() {
 
       {/* EXPORT MODAL */}
       {showExportModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">
-                Export Backup
-              </h2>
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-gray-200 animate-in fade-in zoom-in duration-300">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-1">
+                  Export Backup
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Download your business data
+                </p>
+              </div>
               <button
                 onClick={() => {
                   setShowExportModal(false);
@@ -580,19 +585,20 @@ export default function Dashboard() {
                   setStartDate("");
                   setEndDate("");
                 }}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-gray-400 hover:text-gray-600 text-3xl leading-none transition-colors"
               >
                 ×
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <label className="block font-semibold text-gray-700 mb-2">
-                  Export Type:
+                <label className="block text-sm font-semibold text-gray-700 mb-4">
+                  Select Export Option
                 </label>
-                <div className="flex gap-4">
-                  <label className="flex items-center cursor-pointer">
+                <div className="space-y-3">
+                  <label className="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all"
+                    style={{borderColor: exportOption === "all" ? "#16a34a" : undefined, backgroundColor: exportOption === "all" ? "#f0fdf4" : undefined}}>
                     <input
                       type="radio"
                       name="exportType"
@@ -603,11 +609,16 @@ export default function Dashboard() {
                           e.target.value
                         );
                       }}
-                      className="mr-2"
+                      className="mr-3 w-4 h-4"
                     />
-                    <span>Download All Data</span>
+                    <div>
+                      <p className="font-semibold text-gray-900">Download All Data</p>
+                      <p className="text-xs text-gray-600">Export entire database</p>
+                    </div>
                   </label>
-                  <label className="flex items-center cursor-pointer">
+
+                  <label className="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all"
+                    style={{borderColor: exportOption === "period" ? "#16a34a" : undefined, backgroundColor: exportOption === "period" ? "#f0fdf4" : undefined}}>
                     <input
                       type="radio"
                       name="exportType"
@@ -621,18 +632,21 @@ export default function Dashboard() {
                           e.target.value
                         );
                       }}
-                      className="mr-2"
+                      className="mr-3 w-4 h-4"
                     />
-                    <span>Specific Period</span>
+                    <div>
+                      <p className="font-semibold text-gray-900">Specific Period</p>
+                      <p className="text-xs text-gray-600">Filter by date range</p>
+                    </div>
                   </label>
                 </div>
               </div>
 
               {exportOption === "period" && (
-                <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+                <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200 animate-in fade-in duration-300">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      Start Date:
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Start Date
                     </label>
                     <input
                       type="date"
@@ -642,13 +656,13 @@ export default function Dashboard() {
                           e.target.value
                         )
                       }
-                      className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      End Date:
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      End Date
                     </label>
                     <input
                       type="date"
@@ -658,19 +672,19 @@ export default function Dashboard() {
                           e.target.value
                         )
                       }
-                      className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-colors"
                     />
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="flex gap-2 mt-6">
+            <div className="flex gap-3 mt-8">
               <button
                 onClick={handleExportBackup}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium"
+                className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
               >
-                Export
+                Export Now
               </button>
               <button
                 onClick={() => {
@@ -679,7 +693,7 @@ export default function Dashboard() {
                   setStartDate("");
                   setEndDate("");
                 }}
-                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium"
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg font-semibold transition-colors"
               >
                 Cancel
               </button>
@@ -880,26 +894,31 @@ export default function Dashboard() {
 
       {/* ADD EXPENSE MODAL */}
       {showExpenseModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">
-                Add Expense
-              </h2>
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-gray-200 animate-in fade-in zoom-in duration-300">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-1">
+                  Add Expense
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Record a business expense
+                </p>
+              </div>
               <button
                 onClick={() =>
                   setShowExpenseModal(false)
                 }
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-gray-400 hover:text-gray-600 text-3xl leading-none transition-colors"
               >
                 ×
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Description:
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Description
                 </label>
                 <input
                   type="text"
@@ -911,31 +930,34 @@ export default function Dashboard() {
                     })
                   }
                   placeholder="e.g., Fabric, Thread, Rent"
-                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+                  className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Amount:
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Amount
                 </label>
-                <input
-                  type="number"
-                  value={expenseForm.amount}
-                  onChange={(e) =>
-                    setExpenseForm({
-                      ...expenseForm,
-                      amount: e.target.value,
-                    })
-                  }
-                  placeholder="0.00"
-                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
-                />
+                <div className="relative">
+                  <span className="absolute left-4 top-3 text-lg font-semibold text-gray-600">₱</span>
+                  <input
+                    type="number"
+                    value={expenseForm.amount}
+                    onChange={(e) =>
+                      setExpenseForm({
+                        ...expenseForm,
+                        amount: e.target.value,
+                      })
+                    }
+                    placeholder="0.00"
+                    className="w-full border-2 border-gray-300 rounded-lg pl-8 pr-4 py-3 text-base font-semibold focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-colors"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Date:
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Date
                 </label>
                 <input
                   type="date"
@@ -946,23 +968,32 @@ export default function Dashboard() {
                       date: e.target.value,
                     })
                   }
-                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+                  className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-colors"
                 />
               </div>
             </div>
 
-            <div className="flex gap-2 mt-6">
+            <div className="bg-red-50 rounded-lg p-4 mt-6 border border-red-200">
+              <p className="text-sm text-red-700 font-semibold mb-1">
+                Amount to deduct
+              </p>
+              <p className="text-2xl font-bold text-red-600">
+                ₱{Number(expenseForm.amount || 0).toLocaleString()}
+              </p>
+            </div>
+
+            <div className="flex gap-3 mt-8">
               <button
                 onClick={handleAddExpense}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium"
+                className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
               >
-                Add Expense
+                Record Expense
               </button>
               <button
                 onClick={() =>
                   setShowExpenseModal(false)
                 }
-                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium"
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg font-semibold transition-colors"
               >
                 Cancel
               </button>
