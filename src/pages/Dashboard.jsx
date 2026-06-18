@@ -36,6 +36,21 @@ export default function Dashboard() {
 
   const [endDate, setEndDate] = useState("");
 
+  const [expenses, setExpenses] =
+    useState([]);
+
+  const [showExpenseModal, setShowExpenseModal] =
+    useState(false);
+
+  const [expenseForm, setExpenseForm] =
+    useState({
+      description: "",
+      amount: "",
+      date: new Date()
+        .toISOString()
+        .split("T")[0],
+    });
+
   useEffect(() => {
     loadDashboard();
   }, []);
@@ -311,6 +326,67 @@ export default function Dashboard() {
     stats.tailoringYearly +
     stats.ukayYearly;
 
+  const handleAddExpense = () => {
+    if (!expenseForm.description ||
+        !expenseForm.amount) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    const newExpense = {
+      id: Date.now(),
+      description:
+        expenseForm.description,
+      amount: Number(
+        expenseForm.amount
+      ),
+      date: expenseForm.date,
+    };
+
+    setExpenses([
+      ...expenses,
+      newExpense,
+    ]);
+
+    setExpenseForm({
+      description: "",
+      amount: "",
+      date: new Date()
+        .toISOString()
+        .split("T")[0],
+    });
+
+    setShowExpenseModal(false);
+  };
+
+  const handleDeleteExpense = (id) => {
+    setExpenses(
+      expenses.filter(
+        (exp) => exp.id !== id
+      )
+    );
+  };
+
+  const calculateTotalExpenses =
+    () => {
+      return expenses.reduce(
+        (sum, exp) =>
+          sum + exp.amount,
+        0
+      );
+    };
+
+  const totalExpenses =
+    calculateTotalExpenses();
+
+  const netIncome = {
+    daily: totalDaily - totalExpenses,
+    weekly: totalWeekly - totalExpenses,
+    monthly:
+      totalMonthly - totalExpenses,
+    yearly: totalYearly - totalExpenses,
+  };
+
   const cards = [
     {
       title: "Pending Orders",
@@ -403,11 +479,60 @@ export default function Dashboard() {
         "₱" +
         totalYearly.toLocaleString(),
     },
+
+    {
+      title: "Total Expenses",
+      value:
+        "₱" +
+        totalExpenses.toLocaleString(),
+      color: "bg-red-50 border-red-200",
+    },
+
+    {
+      title: "Net Income Today",
+      value:
+        "₱" +
+        netIncome.daily.toLocaleString(),
+      color:
+        netIncome.daily >= 0
+          ? "bg-green-50 border-green-200"
+          : "bg-red-50 border-red-200",
+    },
+    {
+      title: "Net Income Week",
+      value:
+        "₱" +
+        netIncome.weekly.toLocaleString(),
+      color:
+        netIncome.weekly >= 0
+          ? "bg-green-50 border-green-200"
+          : "bg-red-50 border-red-200",
+    },
+    {
+      title: "Net Income Month",
+      value:
+        "₱" +
+        netIncome.monthly.toLocaleString(),
+      color:
+        netIncome.monthly >= 0
+          ? "bg-green-50 border-green-200"
+          : "bg-red-50 border-red-200",
+    },
+    {
+      title: "Net Income Year",
+      value:
+        "₱" +
+        netIncome.yearly.toLocaleString(),
+      color:
+        netIncome.yearly >= 0
+          ? "bg-green-50 border-green-200"
+          : "bg-red-50 border-red-200",
+    },
   ];
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">
             Dashboard
@@ -418,22 +543,26 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <button
-          onClick={() =>
-            setShowExportModal(true)
-          }
-          className="
-      bg-green-600
-      hover:bg-green-700
-      text-white
-      px-4
-      py-2
-      rounded-lg
-      font-medium
-    "
-        >
-          📥 Export Backup
-        </button>
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() =>
+              setShowExpenseModal(
+                true
+              )
+            }
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium text-sm md:text-base"
+          >
+            + Add Expense
+          </button>
+          <button
+            onClick={() =>
+              setShowExportModal(true)
+            }
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium text-sm md:text-base"
+          >
+            📥 Export Backup
+          </button>
+        </div>
       </div>
 
       {/* EXPORT MODAL */}
@@ -654,6 +783,193 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
+
+      {/* EXPENSES & NET INCOME */}
+      <div className="mt-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          <h2 className="text-lg md:text-xl font-bold">
+            Expenses & Net Income
+          </h2>
+          {expenses.length > 0 && (
+            <p className="text-sm text-gray-600">
+              Total Expenses: <span className="font-bold text-red-600">₱{totalExpenses.toLocaleString()}</span>
+            </p>
+          )}
+        </div>
+
+        {/* EXPENSES LIST */}
+        {expenses.length > 0 && (
+          <div className="bg-white rounded-xl shadow mb-6 p-4 md:p-5">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-2 text-sm font-semibold text-gray-600">
+                      Date
+                    </th>
+                    <th className="text-left py-2 px-2 text-sm font-semibold text-gray-600">
+                      Description
+                    </th>
+                    <th className="text-right py-2 px-2 text-sm font-semibold text-gray-600">
+                      Amount
+                    </th>
+                    <th className="text-center py-2 px-2 text-sm font-semibold text-gray-600">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {expenses.map((expense) => (
+                    <tr key={expense.id} className="border-b hover:bg-gray-50">
+                      <td className="py-2 px-2 text-sm">
+                        {new Date(
+                          expense.date
+                        ).toLocaleDateString()}
+                      </td>
+                      <td className="py-2 px-2 text-sm">
+                        {expense.description}
+                      </td>
+                      <td className="text-right py-2 px-2 text-sm font-semibold text-red-600">
+                        ₱
+                        {Number(
+                          expense.amount
+                        ).toLocaleString()}
+                      </td>
+                      <td className="text-center py-2 px-2">
+                        <button
+                          onClick={() =>
+                            handleDeleteExpense(
+                              expense.id
+                            )
+                          }
+                          className="text-red-600 hover:text-red-800 text-sm font-medium"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* NET INCOME SECTION */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {cards.slice(16).map((card) => (
+            <div
+              key={card.title}
+              className={`border rounded-xl shadow p-4 md:p-5 ${card.color || "bg-white"}`}
+            >
+              <h3 className="text-gray-700 text-xs md:text-sm font-medium">
+                {card.title}
+              </h3>
+
+              <p className={`text-lg md:text-2xl font-bold mt-2 ${
+                card.color?.includes('green')
+                  ? 'text-green-800'
+                  : 'text-red-800'
+              }`}>
+                {card.value}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ADD EXPENSE MODAL */}
+      {showExpenseModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">
+                Add Expense
+              </h2>
+              <button
+                onClick={() =>
+                  setShowExpenseModal(false)
+                }
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Description:
+                </label>
+                <input
+                  type="text"
+                  value={expenseForm.description}
+                  onChange={(e) =>
+                    setExpenseForm({
+                      ...expenseForm,
+                      description: e.target.value,
+                    })
+                  }
+                  placeholder="e.g., Fabric, Thread, Rent"
+                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Amount:
+                </label>
+                <input
+                  type="number"
+                  value={expenseForm.amount}
+                  onChange={(e) =>
+                    setExpenseForm({
+                      ...expenseForm,
+                      amount: e.target.value,
+                    })
+                  }
+                  placeholder="0.00"
+                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Date:
+                </label>
+                <input
+                  type="date"
+                  value={expenseForm.date}
+                  onChange={(e) =>
+                    setExpenseForm({
+                      ...expenseForm,
+                      date: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 mt-6">
+              <button
+                onClick={handleAddExpense}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium"
+              >
+                Add Expense
+              </button>
+              <button
+                onClick={() =>
+                  setShowExpenseModal(false)
+                }
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
