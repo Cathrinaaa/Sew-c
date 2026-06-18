@@ -247,3 +247,21 @@ export async function updateOrderNotes(
 
   if (error) throw error;
 }
+
+/* =========================
+   UPDATE ITEMS COMPLETED
+========================= */
+export async function updateItemsCompleted(
+  orderId,
+  completedQuantity
+) {
+  const { error } = await supabase
+    .from("orders")
+    .update({
+      items_completed:
+        completedQuantity,
+    })
+    .eq("id", orderId);
+
+  if (error) throw error;
+}

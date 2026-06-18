@@ -5,6 +5,7 @@ import {
   updateOrderStatus,
   updatePaymentStatus,
   updateOrderNotes,
+  updateItemsCompleted,
 } from "../services/orderService";
 import { useLocation } from "react-router-dom";
 
@@ -19,6 +20,15 @@ export default function Orders() {
 
   const [selectedCustomer, setSelectedCustomer] =
     useState(null);
+
+  const [showCompletionModal, setShowCompletionModal] =
+    useState(false);
+
+  const [selectedOrderForCompletion, setSelectedOrderForCompletion] =
+    useState(null);
+
+  const [completedQuantity, setCompletedQuantity] =
+    useState(0);
 
   const location = useLocation();
 
@@ -105,13 +115,15 @@ export default function Orders() {
 
       setEditingNote(null);
 
-      await loadOrders();
+      setNoteValue("");
 
       setNoteSuccessMessage(true);
 
       setTimeout(() => {
         setNoteSuccessMessage(false);
       }, 3000);
+
+      await loadOrders();
     } catch (error) {
       console.error(error);
 
@@ -119,6 +131,51 @@ export default function Orders() {
         "Failed to update notes."
       );
     }
+  };
+
+  const handleUpdateCompletion = async () => {
+    if (!selectedOrderForCompletion) return;
+
+    if (
+      completedQuantity > 
+      selectedOrderForCompletion.quantity
+    ) {
+      alert(
+        "Completed quantity cannot exceed total quantity"
+      );
+      return;
+    }
+
+    try {
+      await updateItemsCompleted(
+        selectedOrderForCompletion.id,
+        completedQuantity
+      );
+
+      setShowCompletionModal(false);
+
+      setSelectedOrderForCompletion(null);
+
+      setCompletedQuantity(0);
+
+      await loadOrders();
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Failed to update completion."
+      );
+    }
+  };
+
+  const openCompletionModal = (order) => {
+    setSelectedOrderForCompletion(order);
+
+    setCompletedQuantity(
+      order.items_completed || 0
+    );
+
+    setShowCompletionModal(true);
   };
 
   return (
@@ -211,6 +268,45 @@ export default function Orders() {
                     <strong>Priority:</strong>{" "}
                     {order.priority}
                   </p>
+
+                  <div>
+                    <strong>Items Completed:</strong>
+                    <div className="mt-1 flex items-center gap-2">
+                      <div className="flex-1 bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-green-600 h-2 rounded-full"
+                          style={{
+                            width: `${
+                              order.quantity
+                                ? (
+                                    (
+                                      order.items_completed ||
+                                      0
+                                    ) / order.quantity
+                                  ) * 100
+                                : 0
+                            }%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-sm font-semibold">
+                        {order.items_completed ||
+                          0}
+                        /
+                        {order.quantity || 1}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() =>
+                        openCompletionModal(
+                          order
+                        )
+                      }
+                      className="mt-2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm"
+                    >
+                      Update Progress
+                    </button>
+                  </div>
 
                   <div>
                     <strong>Notes:</strong>
@@ -354,6 +450,140 @@ export default function Orders() {
           </table>
         </div>
       </div>
+
+      {/* COMPLETION TRACKING MODAL */}
+      {showCompletionModal &&
+        selectedOrderForCompletion && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">
+                  Update Completion
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowCompletionModal(
+                      false
+                    );
+                  }}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block font-semibold text-gray-700 mb-2">
+                    Order: {
+                      selectedOrderForCompletion.customer_name
+                    }
+                  </label>
+                  <p className="text-gray-600 text-sm">
+                    Total Items:{" "}
+                    {
+                      selectedOrderForCompletion.quantity ||
+                      1
+                    }
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-gray-700 mb-2">
+                    Items Completed:
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="number"
+                      min="0"
+                      max={
+                        selectedOrderForCompletion.quantity ||
+                        1
+                      }
+                      value={completedQuantity}
+                      onChange={(e) =>
+                        setCompletedQuantity(
+                          Math.max(
+                            0,
+                            parseInt(
+                              e.target
+                                .value || 0
+                            )
+                          )
+                        )
+                      }
+                      className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    />
+                    <span className="text-sm font-semibold text-gray-600">
+                      /{
+                        selectedOrderForCompletion.quantity ||
+                        1
+                      }
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-purple-50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex-1 bg-gray-300 rounded-full h-2">
+                      <div
+                        className="bg-purple-600 h-2 rounded-full transition-all"
+                        style={{
+                          width: `${
+                            selectedOrderForCompletion.quantity
+                              ? (
+                                  completedQuantity /
+                                  (
+                                    selectedOrderForCompletion.quantity ||
+                                    1
+                                  )
+                                ) * 100
+                              : 0
+                          }%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-sm text-purple-700 font-semibold">
+                    {Math.round(
+                      selectedOrderForCompletion.quantity
+                        ? (
+                            completedQuantity /
+                            (
+                              selectedOrderForCompletion.quantity ||
+                              1
+                            )
+                          ) * 100
+                        : 0
+                    )}
+                    % Completed
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={
+                    handleUpdateCompletion
+                  }
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium"
+                >
+                  Update
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCompletionModal(
+                      false
+                    );
+                  }}
+                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       {/* CUSTOMER DETAILS MODAL */}
       {selectedCustomer && (
